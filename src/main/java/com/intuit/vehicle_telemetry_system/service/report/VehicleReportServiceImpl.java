@@ -52,7 +52,7 @@ public class VehicleReportServiceImpl implements VehicleReportService {
 
     vehicleDistances.forEach(curVehicleDistance -> {
       Object vehicleId = curVehicleDistance[0];
-      Double distanceCovered = Double.valueOf(decimalFormat2.format(String.valueOf(curVehicleDistance[1])));
+      Double distanceCovered = Double.parseDouble(String.format("%.2f", curVehicleDistance[1]));
 
       log.info("\nVehicle distances");
       log.info("Vehicle Id: {}, Distance covered: {}", vehicleId, distanceCovered);
