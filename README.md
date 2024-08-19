@@ -85,4 +85,4 @@ vehicle_distance_view
 ```
 
 ## High Level design
-![alt text](https://imgtr.ee/images/2024/08/18/9bf300abd8fa068117ed4a6d98f621a8.png)
+![alt text](https://imgtr.ee/images/2024/08/19/6121debc87695aa905dbe77b48434d99.png)
