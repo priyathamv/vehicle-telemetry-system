@@ -18,11 +18,9 @@ import static com.intuit.vehicle_telemetry_system.constant.AppConstants.OVERSPEE
 public class RuleEngine {
   private MonitoringRuleRepository ruleRepository;
   private Map<String, Supplier<Rule>> ruleFactories;
-  private NotificationService notificationService;
 
   public RuleEngine(MonitoringRuleRepository ruleRepository, NotificationService notificationService) {
     this.ruleRepository = ruleRepository;
-    this.notificationService = notificationService;
     this.ruleFactories = new HashMap<>();
 
     ruleFactories.put(OVERSPEEDING, () -> new OverSpeedingRule(notificationService));
@@ -34,5 +32,11 @@ public class RuleEngine {
       Rule ruleInstance = ruleFactories.get(rule.getRuleType()).get();
       ruleInstance.execute(telemetry, rule);
     }
+  }
+
+  public float getOverSpeedLimit() {
+    MonitoringRule overSpeedRule = ruleRepository.findByRuleType(OVERSPEEDING);
+
+    return Float.parseFloat(overSpeedRule.getParameter());
   }
 }

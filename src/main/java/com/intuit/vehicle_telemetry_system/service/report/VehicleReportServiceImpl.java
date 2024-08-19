@@ -1,8 +1,11 @@
 package com.intuit.vehicle_telemetry_system.service.report;
 
 import com.intuit.vehicle_telemetry_system.dto.FrequencyEnum;
-import com.intuit.vehicle_telemetry_system.repository.OverSpeedingRepository;
+import com.intuit.vehicle_telemetry_system.dto.MonitoringRule;
+import com.intuit.vehicle_telemetry_system.model.VehicleTelemetry;
+import com.intuit.vehicle_telemetry_system.repository.MonitoringRuleRepository;
 import com.intuit.vehicle_telemetry_system.repository.VehicleDistanceRepository;
+import com.intuit.vehicle_telemetry_system.repository.VehicleTelemetryRepository;
 import com.intuit.vehicle_telemetry_system.util.CommonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,18 +18,24 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.List;
 import java.util.Optional;
 
+import static com.intuit.vehicle_telemetry_system.constant.AppConstants.OVERSPEEDING;
 import static com.intuit.vehicle_telemetry_system.constant.AppConstants.decimalFormat2;
 
 @Slf4j
 @Service
 public class VehicleReportServiceImpl implements VehicleReportService {
   private VehicleDistanceRepository vehicleDistanceRepository;
-  private OverSpeedingRepository overSpeedingRepository;
+  private VehicleTelemetryRepository vehicleTelemetryRepository;
+  private MonitoringRuleRepository monitoringRuleRepository;
 
   @Autowired
-  public VehicleReportServiceImpl(VehicleDistanceRepository vehicleDistanceRepository, OverSpeedingRepository overSpeedingRepository) {
+  public VehicleReportServiceImpl(
+      VehicleDistanceRepository vehicleDistanceRepository,
+      VehicleTelemetryRepository vehicleTelemetryRepository,
+      MonitoringRuleRepository monitoringRuleRepository) {
     this.vehicleDistanceRepository = vehicleDistanceRepository;
-    this.overSpeedingRepository = overSpeedingRepository;
+    this.vehicleTelemetryRepository = vehicleTelemetryRepository;
+    this.monitoringRuleRepository = monitoringRuleRepository;
   }
 
   @Override
@@ -34,15 +43,19 @@ public class VehicleReportServiceImpl implements VehicleReportService {
 
     Pair<LocalDateTime, LocalDateTime> startAndEndDate = getStartAndEndDate(startDate, endDate, timezoneStr, frequency);
 
-    List<Object[]> overSpeedVehicles = overSpeedingRepository.findOverSpeedVehicles(
-        startAndEndDate.getFirst().toLocalDate(),
-        startAndEndDate.getSecond().toLocalDate());
+    MonitoringRule overSpeedRule = monitoringRuleRepository.findByRuleType(OVERSPEEDING);
+    float overSpeedLimit = Float.parseFloat(overSpeedRule.getParameter());
+
+    List<Object[]> overSpeedVehicles = vehicleTelemetryRepository.findOverSpeedVehicles(
+        overSpeedLimit,
+        startAndEndDate.getFirst(),
+        startAndEndDate.getSecond());
     
+    log.info("########## Over Speed vehicles report ##########");
     overSpeedVehicles.forEach(curOverSpeedVehicle -> {
       Object vehicleId = curOverSpeedVehicle[0];
       Object overSpeedCount = curOverSpeedVehicle[1];
       Object maxSpeed = curOverSpeedVehicle[2];
-      log.info("Over Speed vehicles");
       log.info("Vehicle Id: {}, Over Speed count: {}, Max Speed: {}", vehicleId, overSpeedCount, maxSpeed);
     });
 
@@ -50,11 +63,11 @@ public class VehicleReportServiceImpl implements VehicleReportService {
         startAndEndDate.getFirst(),
         startAndEndDate.getSecond());
 
+    log.info("########## Vehicle distances report ##########");
     vehicleDistances.forEach(curVehicleDistance -> {
       Object vehicleId = curVehicleDistance[0];
       Double distanceCovered = Double.parseDouble(String.format("%.2f", curVehicleDistance[1]));
 
-      log.info("\nVehicle distances");
       log.info("Vehicle Id: {}, Distance covered: {}", vehicleId, distanceCovered);
     });
 

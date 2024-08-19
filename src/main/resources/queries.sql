@@ -38,19 +38,6 @@ GROUP BY
     vehicle_id, time_bucket;
 
 
-CREATE MATERIALIZED VIEW over_speeding_view AS
-SELECT
-    time_bucket('1 day', time) AS day,
-    vehicle_id,
-    COUNT(*) AS over_speed_count,
-    MAX(speed) AS max_speed
-FROM
-    vehicle_telemetry
-WHERE
-    speed > 80.0
-GROUP BY
-    time_bucket('1 day', time), vehicle_id;
-
 -- Monitoring Rules
 CREATE TABLE monitoring_rule (
     id SERIAL PRIMARY KEY,
