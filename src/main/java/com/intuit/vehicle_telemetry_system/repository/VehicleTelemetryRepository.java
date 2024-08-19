@@ -24,5 +24,4 @@ public interface VehicleTelemetryRepository extends JpaRepository<VehicleTelemet
   List<Object[]> findOverSpeedVehicles(@Param("speedLimit") float speedLimit,
                                        @Param("startDate") LocalDateTime startDate,
                                        @Param("endDate") LocalDateTime endDate);
-
 }

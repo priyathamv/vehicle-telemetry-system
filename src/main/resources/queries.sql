@@ -30,12 +30,16 @@ WITH distances AS (
 )
 SELECT
     vehicle_id,
-    time_bucket('1 minute', time) AT TIME ZONE 'UTC' AS time_bucket,
+    time_bucket('1 hour', time) AT TIME ZONE 'UTC' AS time_bucket,
     SUM(distance) AS total_distance
 FROM
     distances
 GROUP BY
     vehicle_id, time_bucket;
+
+CREATE UNIQUE INDEX idx_vehicle_time_bucket_unique
+ON vehicle_distance_view (vehicle_id, time_bucket);
+
 
 
 -- Monitoring Rules
