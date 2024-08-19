@@ -47,6 +47,18 @@ SELECT
 FROM
     vehicle_telemetry
 WHERE
-    speed > 70.0
+    speed > 80.0
 GROUP BY
     time_bucket('1 day', time), vehicle_id;
+
+-- Monitoring Rules
+CREATE TABLE monitoring_rule (
+    id SERIAL PRIMARY KEY,
+    rule_type VARCHAR(50) NOT NULL,
+    parameter VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+INSERT INTO monitoring_rule (rule_type, parameter)
+VALUES ('OVERSPEEDING', '80.0');

@@ -5,6 +5,7 @@ import com.intuit.vehicle_telemetry_system.dto.VehicleTelemetryDTO;
 import com.intuit.vehicle_telemetry_system.model.VehicleTelemetry;
 import com.intuit.vehicle_telemetry_system.model.VehicleTelemetryId;
 import com.intuit.vehicle_telemetry_system.repository.VehicleTelemetryRepository;
+import com.intuit.vehicle_telemetry_system.service.rule.RuleEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,13 +21,24 @@ import static java.util.Objects.isNull;
 @Slf4j
 @Service
 public class VehicleTelemetryServiceImpl implements VehicleTelemetryService {
-  @Autowired
   private VehicleTelemetryRepository vehicleTelemetryRepository;
+  private RuleEngine ruleEngine;
+
+  @Autowired
+  public VehicleTelemetryServiceImpl(VehicleTelemetryRepository vehicleTelemetryRepository, RuleEngine ruleEngine) {
+    this.vehicleTelemetryRepository = vehicleTelemetryRepository;
+    this.ruleEngine = ruleEngine;
+  }
 
   @Override
   public boolean saveTelemetry(VehicleTelemetryDTO vehicleTelemetryDTO) {
     try {
       VehicleTelemetry vehicleTelemetry = convertToVehicleTelemetry(vehicleTelemetryDTO);
+
+      // Evaluating rules
+      ruleEngine.evaluate(vehicleTelemetry);
+
+      // Persisting the record
       vehicleTelemetryRepository.save(vehicleTelemetry);
       return true;
     } catch (Exception ex) {
@@ -60,6 +72,8 @@ public class VehicleTelemetryServiceImpl implements VehicleTelemetryService {
 
     return VehicleTelemetry.builder()
         .id(vehicleTelemetryId)
+        .vehicleId(vehicleTelemetryId.getVehicleId())
+        .time(vehicleTelemetryId.getTime())
         .latitude(vehicleTelemetryDTO.getLatitude())
         .longitude(vehicleTelemetryDTO.getLongitude())
         .fuelPercentage(vehicleTelemetryDTO.getFuelPercentage())

@@ -6,4 +6,6 @@ public class AppConstants {
   public static String UTC_TIMEZONE = "UTC";
 
   public static final DecimalFormat decimalFormat2 = new DecimalFormat("#.##");
+
+  public static final String OVERSPEEDING = "OVERSPEEDING";
 }

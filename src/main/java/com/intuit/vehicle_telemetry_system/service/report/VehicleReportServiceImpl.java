@@ -1,4 +1,4 @@
-package com.intuit.vehicle_telemetry_system.service;
+package com.intuit.vehicle_telemetry_system.service.report;
 
 import com.intuit.vehicle_telemetry_system.dto.FrequencyEnum;
 import com.intuit.vehicle_telemetry_system.repository.OverSpeedingRepository;
